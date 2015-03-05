@@ -10,17 +10,19 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-struct my_msgbuf {
+typedef struct msgbuffer {
+
     long mtype;
-    char mtext[200];
-};
+    char mtext[300];
+}msgbuf;
 
 int main(void)
 {
-    struct my_msgbuf buf;
-    struct my_msgbuf buf1;
+    msgbuf bufrecv;
+    msgbuf bufsnd;
     int msqid;
     key_t key;
+    int count=1;
 
     if ((key = ftok("server.c", 'B')) == -1) {  /* same key as server */
         perror("ftok");
@@ -32,22 +34,30 @@ int main(void)
         exit(1);
     }
     
-    printf("Client: ready to receive messages, Server.\n");
+    printf("Client_1 Ready to Receive Messages, Message Queue %d.\n", msqid);
 
-    buf1.mtype=3;
-    for(;;) { /* Spock never quits! */
-        if (msgrcv(msqid, &buf, sizeof(buf.mtext), 1, 0) == -1) {
-            perror("msgrcv");
+   
+    while(count>0) { 
+
+        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 1, 0) == -1) {
+            perror("msgrcv failed");
             exit(1);
         }
-        printf("Server: \"%s\"\n", buf.mtext);
 
-         (void) strcpy(buf1.mtext, "Thanks Client 1");
-        size_t len = strlen(buf1.mtext)+1;
+        printf("******************************\n");
+        printf("Received Message\n");
+        // printf("From: %ld\n", bufrecv.mtype);
+        printf("Message: \"%s\"\n", bufrecv.mtext);
+        // scanf("%s", &bufsnd.mtext);
+        
+        bufsnd.mtype=9;
+        (void) strcpy(bufsnd.mtext, "Thanks Got your Message Client 1");
+        size_t len = strlen(bufsnd.mtext)+1;
 
-        if (msgsnd(msqid, &buf1, len, 0) == -1) /* +1 for '\0' */
+        if (msgsnd(msqid, &bufsnd, len, 0) == -1) {
             perror("msgsnd");
-
+        } 
+        
     }
 
     return 0;

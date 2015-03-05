@@ -10,17 +10,20 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-struct my_msgbuf {
+typedef struct msgbuffer {
+
     long mtype;
-    char mtext[200];
-};
+    char mtext[300];
+}msgbuf;
 
 int main(void)
 {
-    struct my_msgbuf buf;
-    struct my_msgbuf buf1;
+    msgbuf bufrecv;
+    msgbuf bufsnd;
     int msqid;
     key_t key;
+    int count=1;
+
 //Creating a unique key
     if ((key = ftok("server.c", 'B')) == -1) {
         perror("ftok");
@@ -28,38 +31,39 @@ int main(void)
     }
 //Initialize the message queue
     if ((msqid = msgget(key, 0644 | IPC_CREAT)) == -1) {
-        perror("msgget");
+        perror("msgget Initialization failed");
         exit(1);
     }
     
-    printf("Message to the Client Processes, [Cltrl+D to quit]:\n");
+    printf("Server Started Running:,Message Queue ID=%d \n [Cltrl+D to quit]:\n", msqid);
 
-    //buf.mtype = 1; //message type
+    while(count>0) {
 
-    while(fgets(buf.mtext, sizeof buf.mtext, stdin) != NULL) {
+        printf("To Id\n");
+        scanf("%ld", &bufsnd.mtype);
+        /*printf("Message:\n");
+        fgets(bufsnd.mtext, sizeof(bufsnd.mtext), stdin);*/
+        // scanf("%s", bufsnd.mtext);
+        (void) strcpy(bufsnd.mtext, "Am the Boss--->>");
 
-        (void) strcpy(buf.mtext, "Am the Boss");
-        int len = strlen(buf.mtext);
-        printf("Receiver ID\n");
-        scanf("%ld", &buf.mtype);
+        //message length
+        int len = strlen(bufsnd.mtext);
 
-        /* Remove a newline at end, if it exists */
-        if (buf.mtext[len-1] == '\n') 
-            {
-                buf.mtext[len-1] = '\0';
-            }
-
-        if (msgsnd(msqid, &buf, len+1, 0) == -1) {
+        if (msgsnd(msqid, &bufsnd, len+1, 0) == -1) {
             perror("msgsnd failed");
             exit(1);
         }
+        printf("Message sent\n");
 
-        if (msgrcv(msqid, &buf1, sizeof(buf1.mtext), 3, 0) == -1) {
+        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 9, 0) == -1) {
             perror("msgrcv failed");
             exit(1);
         }
-        //reply from client
-        printf("Client: \"%s\"\n", buf1.mtext);
+
+        //Message display
+        printf("Reply: %s \n", bufrecv.mtext);
+
+
     }
 
 //delete the message queue
