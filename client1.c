@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <unistd.h>
 
 typedef struct msgbuffer {
 
@@ -23,6 +24,8 @@ int main(void)
     int msqid;
     key_t key;
     int count=1;
+     //get the process id
+    long processid=getpid();
 
     if ((key = ftok("server.c", 'B')) == -1) {  /* same key as server */
         perror("ftok");
@@ -34,12 +37,13 @@ int main(void)
         exit(1);
     }
     
-    printf("Client_1 Ready to Receive Messages, Message Queue=%d.\n", msqid);
+    printf("Process ID : %ld\n", processid);
+    printf("Client_1: Ready to Receive Messages, Message Queue=%d.\n", msqid);
 
    
     while(count>0) { 
 
-        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 1, 0) == -1) {
+        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), processid, 0) == -1) {
             perror("msgrcv failed");
             exit(1);
         }
@@ -50,7 +54,7 @@ int main(void)
         printf("Message: \"%s\"\n", bufrecv.mtext);
         // scanf("%s", &bufsnd.mtext);
         
-        bufsnd.mtype=9;
+        bufsnd.mtype=1;
         (void) strcpy(bufsnd.mtext, "Faith: Thanks Got your Message");
         size_t len = strlen(bufsnd.mtext)+1;
 

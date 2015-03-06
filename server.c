@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <unistd.h>
 
 typedef struct msgbuffer {
 
@@ -23,6 +24,8 @@ int main(void)
     int msqid;
     key_t key;
     int count=1;
+     //get the process id
+    long processid=getpid();
 
 //Creating a unique key
     if ((key = ftok("server.c", 'B')) == -1) {
@@ -34,7 +37,7 @@ int main(void)
         perror("msgget Initialization failed");
         exit(1);
     }
-    
+     printf("Process ID : %ld\n", processid);
     printf("Server Started Running:,Message Queue ID=%d \n [Cltrl+D to quit]:\n", msqid);
 
     while(count>0) {
@@ -63,7 +66,7 @@ int main(void)
         printf("Message sent\n");
         printf("********************************************\n");
 
-        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 9, 0) == -1) {
+        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 0, 0) == -1) {
             perror("msgrcv failed");
             exit(1);
         }
