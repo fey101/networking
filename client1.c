@@ -34,7 +34,7 @@ int main(void)
         exit(1);
     }
     
-    printf("Client_1 Ready to Receive Messages, Message Queue %d.\n", msqid);
+    printf("Client_1 Ready to Receive Messages, Message Queue=%d.\n", msqid);
 
    
     while(count>0) { 
@@ -51,7 +51,7 @@ int main(void)
         // scanf("%s", &bufsnd.mtext);
         
         bufsnd.mtype=9;
-        (void) strcpy(bufsnd.mtext, "Thanks Got your Message Client 1");
+        (void) strcpy(bufsnd.mtext, "Faith: Thanks Got your Message");
         size_t len = strlen(bufsnd.mtext)+1;
 
         if (msgsnd(msqid, &bufsnd, len, 0) == -1) {

@@ -39,21 +39,29 @@ int main(void)
 
     while(count>0) {
 
-        printf("To Id\n");
+        printf("To ID:\n");
         scanf("%ld", &bufsnd.mtype);
-        /*printf("Message:\n");
-        fgets(bufsnd.mtext, sizeof(bufsnd.mtext), stdin);*/
-        // scanf("%s", bufsnd.mtext);
-        (void) strcpy(bufsnd.mtext, "Am the Boss--->>");
-
+        //printf("Message:\n");
+        getchar();
+        printf("Message:\n");
+        fgets(bufsnd.mtext, sizeof bufsnd.mtext, stdin);
+        //scanf("%s", bufsnd.mtext);
+        //(void) strcpy(bufsnd.mtext, "Am the Boss--->>");
         //message length
         int len = strlen(bufsnd.mtext);
+
+        if(bufsnd.mtext[len-1]=='\n')
+        {
+            bufsnd.mtext[len-1]='\0';
+        }
+
 
         if (msgsnd(msqid, &bufsnd, len+1, 0) == -1) {
             perror("msgsnd failed");
             exit(1);
         }
         printf("Message sent\n");
+        printf("********************************************\n");
 
         if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 9, 0) == -1) {
             perror("msgrcv failed");

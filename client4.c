@@ -1,5 +1,5 @@
 /*
-** Client 2 process -- reads from a message queue and replies.
+** Client 5 process -- reads from a message queue and replies.
 */
 
 #include <stdio.h>
@@ -33,27 +33,25 @@ int main(void)
         perror("msgget");
         exit(1);
     }
-
-    printf("Client 2\n");
     
+    printf("Client 4\n");
     printf("Ready to Receive Messages, Message Queue %d.\n", msqid);
 
    
     while(count>0) { 
 
-        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 2, 0) == -1) {
+        if (msgrcv(msqid, &bufrecv, sizeof(bufrecv.mtext), 4, 0) == -1) {
             perror("msgrcv failed");
             exit(1);
         }
 
         printf("******************************\n");
-        printf("Received Message\n");
-        printf("From: %ld\n", bufrecv.mtype);
+        printf("Received Message From Server\n");
         printf("Message: \"%s\"\n", bufrecv.mtext);
         // scanf("%s", &bufsnd.mtext);
         
          bufsnd.mtype=9;
-        (void) strcpy(bufsnd.mtext, "Thanks Got your Message: Faith");
+        (void) strcpy(bufsnd.mtext, "Dennis:Thanks Got your Message");
         size_t len = strlen(bufsnd.mtext)+1;
 
         if (msgsnd(msqid, &bufsnd, len, 0) == -1) {
